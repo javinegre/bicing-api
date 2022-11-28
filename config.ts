@@ -1,4 +1,6 @@
-import { IApiConfig } from './types';
+import { IApiConfig } from './src/types';
+
+const apiVersion = 'v1.3';
 
 const bicingApiBaseUrl: IApiConfig['bicingApiBaseUrl'] =
   'https://api.bsmsa.eu/ext/api/bsm/gbfs/v2/en/';
@@ -19,4 +21,4 @@ const cacheConfig: IApiConfig['cacheConfig'] = {
   },
 };
 
-export default { bicingApiBaseUrl, endpoints, cacheConfig };
+export default { apiVersion, bicingApiBaseUrl, endpoints, cacheConfig };

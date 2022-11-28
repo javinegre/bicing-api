@@ -12,7 +12,7 @@ import {
 } from './types';
 import { ApiEndpointType, DataTransformType } from './types';
 
-import config from './config';
+import config from '../config';
 import dataTransformers from './helpers/data-transformers';
 import responseHelpers from './helpers/response';
 
@@ -21,10 +21,10 @@ const cache = require('memory-cache');
 axios.interceptors.response.use(responseHelpers.handleResponseData);
 
 const Api = (): IApiMethods => {
-  const { endpoints, cacheConfig } = config;
+  const { bicingApiBaseUrl, endpoints, cacheConfig } = config;
 
   const getApiUrl = (endpoint: string): string =>
-    `${config.bicingApiBaseUrl}${endpoint}`;
+    `${bicingApiBaseUrl}${endpoint}`;
 
   const getCachedData = async <OT, TT>(
     type: ApiEndpointType,

@@ -1,5 +1,6 @@
 import { Express } from 'express';
 import ApiRoutes from './src/api.routes';
+import config from './config';
 
 const express = require('express');
 const path = require('path');
@@ -15,7 +16,7 @@ app.use(
 
 app.use(express.static(path.join(__dirname, '/build')));
 
-app.use('/api/v1.2', ApiRoutes);
+app.use(`/${config.apiVersion}`, ApiRoutes);
 
 app.get('*', (req, res) => {
   res.redirect(404, 'http://negre.co');

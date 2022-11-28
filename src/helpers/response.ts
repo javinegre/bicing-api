@@ -1,8 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { IOfficialApiResult, IResponseHelpers } from '../types';
 
-const chalk = require('chalk');
-
 const isResponseDataValid = <T>(
   response: AxiosResponse<IOfficialApiResult<T>>,
 ): boolean =>
@@ -32,9 +30,7 @@ const handleErrorResponse: IResponseHelpers['handleErrorResponse'] = (err) => {
   const resourceUrl = err.config && err.config.url ? err.config.url : '';
 
   console.log(
-    `\n${new Date().toUTCString()}\n${chalk.black.bgRed(
-      'Open Data BCN api error',
-    )}\nResource: ${chalk.yellow(resourceUrl)}\n${err.stack}`,
+    `\n${new Date().toUTCString()}\nOpen Data BCN api error\nResource: ${resourceUrl}\n${err.stack}`,
   );
 
   return {

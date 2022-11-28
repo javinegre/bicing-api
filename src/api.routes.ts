@@ -5,7 +5,6 @@ import Api from './api.controller';
 import { XHRApiResponseType, IXHRStationInfo, IXHRStationStatus } from './types';
 
 const express = require('express');
-const path = require('path');
 
 const apiRoutes: Express = express();
 
