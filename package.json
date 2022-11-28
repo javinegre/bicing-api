@@ -1,0 +1,24 @@
+{
+  "name": "@negre-co/bicing-api",
+  "version": "0.0.1",
+  "description": "Bicing API",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/javinegre/bicing-api.git"
+  },
+  "keywords": [
+    "Barcelona",
+    "Bicing",
+    "API"
+  ],
+  "author": "javi.negre@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/javinegre/bicing-api/issues"
+  },
+  "homepage": "https://github.com/javinegre/bicing-api#readme"
+}
