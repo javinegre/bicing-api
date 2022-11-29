@@ -1,10 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const express = require('express');
 import { Express, Response } from 'express';
 
 import Api from './api.controller';
 
 import { ApiResponseType, StationInfoListItem, StationStatusListItem } from './types';
-
-const express = require('express');
 
 const apiRoutes: Express = express();
 

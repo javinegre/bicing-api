@@ -2,7 +2,9 @@ import { Express } from 'express';
 import ApiRoutes from './src/api.routes';
 import config from './config';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const express = require('express');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const cors = require('express-cors');
 
 const app: Express = express();

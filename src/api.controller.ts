@@ -8,12 +8,13 @@ import {
 } from './types';
 import { OfficialApiResult, OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from './dtos';
 import { ApiEndpointType, DataTransformType } from './types';
-import {Request} from 'express'
+import {Request} from 'express';
 
 import config from '../config';
 import dataTransformers from './helpers/data-transformers';
 import responseHelpers from './helpers/response';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const cache = require('memory-cache');
 
 axios.interceptors.response.use(responseHelpers.handleResponseData);
