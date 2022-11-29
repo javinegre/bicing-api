@@ -6,9 +6,13 @@ import {
   StationInfoListItem,
   StationStatusListItem,
 } from './types';
-import { OfficialApiResult, OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from './dtos';
+import {
+  OfficialApiResult,
+  OfficialApiStationInfoListItem,
+  OfficialApiStationStatusListItem,
+} from './dtos';
 import { ApiEndpointType, DataTransformType } from './types';
-import {Request} from 'express';
+import { Request } from 'express';
 
 import config from '../config';
 import dataTransformers from './helpers/data-transformers';
@@ -22,19 +26,17 @@ axios.interceptors.response.use(responseHelpers.handleResponseData);
 const Api = (request: Request) => {
   const { bicingApiBaseUrl, endpoints, cacheConfig } = config;
 
-  const logRequest = (
-    method: ApiEndpointType,
-    missHit: 'HIT' | 'MISS',
-  ) => {
-    console.log(`[${(new Date()).toUTCString()}] 🚲 Bicing Api - ${method} *${missHit}* - ${request.ip}`);
+  const logRequest = (method: ApiEndpointType, missHit: 'HIT' | 'MISS') => {
+    console.log(
+      `[${new Date().toUTCString()}] 🚲 Bicing Api - ${method} *${missHit}* - ${request.ip}`
+    );
   };
 
-  const getApiUrl = (endpoint: string): string =>
-    `${bicingApiBaseUrl}${endpoint}`;
+  const getApiUrl = (endpoint: string): string => `${bicingApiBaseUrl}${endpoint}`;
 
   const getCachedData = async <OT, TT>(
     type: ApiEndpointType,
-    dataTransformer: DataTransformType<OT, TT>,
+    dataTransformer: DataTransformType<OT, TT>
   ): Promise<ApiResponseType<TT>> => {
     const { key, ttl } = cacheConfig[type];
 
@@ -49,11 +51,9 @@ const Api = (request: Request) => {
       cache.put(key, result, ttl);
 
       logRequest(type, 'MISS');
-    }
-    else {
+    } else {
       logRequest(type, 'HIT');
     }
-
 
     return result;
   };
@@ -61,13 +61,13 @@ const Api = (request: Request) => {
   const getStationInfo = async (): Promise<StationInfoResponse> =>
     getCachedData<OfficialApiStationInfoListItem, StationInfoListItem>(
       'info',
-      dataTransformers.info,
+      dataTransformers.info
     );
 
   const getStationStatus = async (): Promise<StationStatusResponse> =>
     getCachedData<OfficialApiStationStatusListItem, StationStatusListItem>(
       'status',
-      dataTransformers.status,
+      dataTransformers.status
     );
 
   return {

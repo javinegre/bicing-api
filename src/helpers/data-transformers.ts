@@ -1,12 +1,5 @@
-import {
-  DataTransformType,
-  StationInfoListItem,
-  StationStatusListItem,
-} from '../types';
-import {
-  OfficialApiStationInfoListItem,
-  OfficialApiStationStatusListItem,
-} from '../dtos'
+import { DataTransformType, StationInfoListItem, StationStatusListItem } from '../types';
+import { OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from '../dtos';
 
 const stationInfoTransform: DataTransformType<
   OfficialApiStationInfoListItem,

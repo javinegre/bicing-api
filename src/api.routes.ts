@@ -12,7 +12,7 @@ const sendJson: (
   res: Response<any, any>,
   data:
     | ApiResponseType<StationInfoListItem | StationStatusListItem>
-    | { latestVersion: string | null },
+    | { latestVersion: string | null }
 ) => void = (res, data) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify(data, null, 0));

@@ -24,23 +24,23 @@ export interface ApiConfig {
 /* -------------------------------------------------------------------------- */
 
 export interface StationInfoListItem {
-    id: number;
-    name: string;
-    lat: number;
-    lng: number;
-  }
-  
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
 export enum StationStatusEnum {
   inactive,
   active,
 }
 
 export interface StationStatusListItem {
-    i: number;
-    e: number;
-    m: number;
-    d: number;
-    s: StationStatusEnum.inactive | StationStatusEnum.active;
+  i: number;
+  e: number;
+  m: number;
+  d: number;
+  s: StationStatusEnum.inactive | StationStatusEnum.active;
 }
 
 export interface StationListResponse<T> {
@@ -54,10 +54,7 @@ export interface ErrorResponse {
   errorMessage: string;
 }
 
-export type ApiResponseType<T> =
-  | StationListResponse<T>
-  | ErrorResponse
-  | null;
+export type ApiResponseType<T> = StationListResponse<T> | ErrorResponse | null;
 
 export type StationInfoResponse = ApiResponseType<StationInfoListItem>;
 export type StationStatusResponse = ApiResponseType<StationStatusListItem>;
@@ -70,10 +67,10 @@ export type DataTransformType<OT, TT> = (station: OT) => TT;
 
 export interface ResponseHelpers {
   handleResponseData: <T>(
-    response: AxiosResponse<OfficialApiResult<T>>,
+    response: AxiosResponse<OfficialApiResult<T>>
   ) => AxiosResponse<OfficialApiResult<T>> | Promise<never>;
   handleSuccessfulResponse: <OT, TT>(
-    stationTransformer: DataTransformType<OT, TT>,
+    stationTransformer: DataTransformType<OT, TT>
   ) => (response: AxiosResponse<OfficialApiResult<OT>>) => StationListResponse<TT>;
   handleErrorResponse: (err: AxiosError) => ErrorResponse;
 }
