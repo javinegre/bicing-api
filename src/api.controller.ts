@@ -26,9 +26,16 @@ axios.interceptors.response.use(responseHelpers.handleResponseData);
 const Api = (request: Request) => {
   const { bicingApiBaseUrl, endpoints, cacheConfig } = config;
 
+  const getPartialIp = (ipString: string) => {
+    const match = ipString.match(/(?<partialIp>\d{0,4}(\.|:)\d{0,4})$/);
+    return `(...)${match?.groups?.partialIp}`;
+  };
+
   const logRequest = (method: ApiEndpointType, missHit: 'HIT' | 'MISS') => {
     console.log(
-      `[${new Date().toUTCString()}] 🚲 Bicing Api - ${method} *${missHit}* - ${request.ip}`
+      `[${new Date().toUTCString()}] 🚲 Bicing Api - ${method} *${missHit}* - ${getPartialIp(
+        request.ip
+      )}`
     );
   };
 
