@@ -1,15 +1,16 @@
 import { AxiosResponse } from 'axios';
-import { IOfficialApiResult, IResponseHelpers } from '../types';
+import { ResponseHelpers } from '../types';
+import { OfficialApiResult } from '../dtos';
 
 const isResponseDataValid = <T>(
-  response: AxiosResponse<IOfficialApiResult<T>>,
+  response: AxiosResponse<OfficialApiResult<T>>,
 ): boolean =>
   response.data &&
   typeof response.data.last_updated === 'number' &&
   response.data.data &&
   Array.isArray(response.data.data.stations);
 
-const handleResponseData: IResponseHelpers['handleResponseData'] = (response) =>
+const handleResponseData: ResponseHelpers['handleResponseData'] = (response) =>
   isResponseDataValid(response)
     ? response
     : Promise.reject(
@@ -18,7 +19,7 @@ const handleResponseData: IResponseHelpers['handleResponseData'] = (response) =>
         ),
       );
 
-const handleSuccessfulResponse: IResponseHelpers['handleSuccessfulResponse'] = (
+const handleSuccessfulResponse: ResponseHelpers['handleSuccessfulResponse'] = (
   stationTransformer,
 ) => (response) => ({
   success: true,
@@ -26,7 +27,7 @@ const handleSuccessfulResponse: IResponseHelpers['handleSuccessfulResponse'] = (
   stations: response.data.data.stations.map(stationTransformer),
 });
 
-const handleErrorResponse: IResponseHelpers['handleErrorResponse'] = (err) => {
+const handleErrorResponse: ResponseHelpers['handleErrorResponse'] = (err) => {
   const resourceUrl = err.config && err.config.url ? err.config.url : '';
 
   console.log(

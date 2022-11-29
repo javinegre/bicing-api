@@ -1,15 +1,12 @@
 import axios from 'axios';
 import {
-  IApiMethods,
-  IOfficialApiResult,
-  IOfficialApiStationInfo,
-  IOfficialApiStationStatus,
-  XHRApiResponseType,
-  XHRApiStationInfoResponseType,
-  XHRApiStationStatusResponseType,
-  IXHRStationInfo,
-  IXHRStationStatus,
+  ApiResponseType,
+  StationInfoResponse,
+  StationStatusResponse,
+  StationInfoListItem,
+  StationStatusListItem,
 } from './types';
+import { OfficialApiResult, OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from './dtos';
 import { ApiEndpointType, DataTransformType } from './types';
 import {Request} from 'express'
 
@@ -21,7 +18,7 @@ const cache = require('memory-cache');
 
 axios.interceptors.response.use(responseHelpers.handleResponseData);
 
-const Api = (request: Request): IApiMethods => {
+const Api = (request: Request) => {
   const { bicingApiBaseUrl, endpoints, cacheConfig } = config;
 
   const logRequest = (
@@ -37,14 +34,14 @@ const Api = (request: Request): IApiMethods => {
   const getCachedData = async <OT, TT>(
     type: ApiEndpointType,
     dataTransformer: DataTransformType<OT, TT>,
-  ): Promise<XHRApiResponseType<TT>> => {
+  ): Promise<ApiResponseType<TT>> => {
     const { key, ttl } = cacheConfig[type];
 
-    let result: XHRApiResponseType<TT> = cache.get(key);
+    let result: ApiResponseType<TT> = cache.get(key);
 
     if (result === null || !result.success) {
       result = await axios
-        .get<IOfficialApiResult<OT>>(getApiUrl(endpoints[type]))
+        .get<OfficialApiResult<OT>>(getApiUrl(endpoints[type]))
         .then(responseHelpers.handleSuccessfulResponse(dataTransformer))
         .catch(responseHelpers.handleErrorResponse);
 
@@ -60,14 +57,14 @@ const Api = (request: Request): IApiMethods => {
     return result;
   };
 
-  const getStationInfo = async (): Promise<XHRApiStationInfoResponseType> =>
-    getCachedData<IOfficialApiStationInfo, IXHRStationInfo>(
+  const getStationInfo = async (): Promise<StationInfoResponse> =>
+    getCachedData<OfficialApiStationInfoListItem, StationInfoListItem>(
       'info',
       dataTransformers.info,
     );
 
-  const getStationStatus = async (): Promise<XHRApiStationStatusResponseType> =>
-    getCachedData<IOfficialApiStationStatus, IXHRStationStatus>(
+  const getStationStatus = async (): Promise<StationStatusResponse> =>
+    getCachedData<OfficialApiStationStatusListItem, StationStatusListItem>(
       'status',
       dataTransformers.status,
     );

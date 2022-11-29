@@ -1,16 +1,16 @@
-import { IApiConfig } from './src/types';
+import { ApiConfig } from './src/types';
 
 const apiVersion = 'v1.3';
 
-const bicingApiBaseUrl: IApiConfig['bicingApiBaseUrl'] =
+const bicingApiBaseUrl =
   'https://api.bsmsa.eu/ext/api/bsm/gbfs/v2/en/';
 
-const endpoints: IApiConfig['endpoints'] = {
+const endpoints: ApiConfig['endpoints'] = {
   info: 'station_information',
   status: 'station_status',
 };
 
-const cacheConfig: IApiConfig['cacheConfig'] = {
+const cacheConfig: ApiConfig['cacheConfig'] = {
   info: {
     key: 'stations-info',
     ttl: 10 * 60 * 1000, // 10min

@@ -2,7 +2,7 @@ import { Express, Response } from 'express';
 
 import Api from './api.controller';
 
-import { XHRApiResponseType, IXHRStationInfo, IXHRStationStatus } from './types';
+import { ApiResponseType, StationInfoListItem, StationStatusListItem } from './types';
 
 const express = require('express');
 
@@ -11,7 +11,7 @@ const apiRoutes: Express = express();
 const sendJson: (
   res: Response<any, any>,
   data:
-    | XHRApiResponseType<IXHRStationInfo | IXHRStationStatus>
+    | ApiResponseType<StationInfoListItem | StationStatusListItem>
     | { latestVersion: string | null },
 ) => void = (res, data) => {
   res.setHeader('Content-Type', 'application/json');

@@ -1,14 +1,16 @@
 import {
   DataTransformType,
-  IOfficialApiStationInfo,
-  IOfficialApiStationStatus,
-  IXHRStationInfo,
-  IXHRStationStatus,
+  StationInfoListItem,
+  StationStatusListItem,
 } from '../types';
+import {
+  OfficialApiStationInfoListItem,
+  OfficialApiStationStatusListItem,
+} from '../dtos'
 
 const stationInfoTransform: DataTransformType<
-  IOfficialApiStationInfo,
-  IXHRStationInfo
+  OfficialApiStationInfoListItem,
+  StationInfoListItem
 > = (station) => ({
   id: station.station_id,
   name: station.name,
@@ -17,8 +19,8 @@ const stationInfoTransform: DataTransformType<
 });
 
 const stationStatusTransform: DataTransformType<
-  IOfficialApiStationStatus,
-  IXHRStationStatus
+  OfficialApiStationStatusListItem,
+  StationStatusListItem
 > = (station) => ({
   i: station.station_id,
   e: station.num_bikes_available_types.ebike,
