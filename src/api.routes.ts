@@ -19,12 +19,12 @@ const sendJson: (
 };
 
 apiRoutes.get('/station-info', async (req, res) => {
-  const resData = await Api().getStationInfo();
+  const resData = await Api(req).getStationInfo();
   sendJson(res, resData);
 });
 
 apiRoutes.get('/station-status', async (req, res) => {
-  const resData = await Api().getStationStatus();
+  const resData = await Api(req).getStationStatus();
   sendJson(res, resData);
 });
 

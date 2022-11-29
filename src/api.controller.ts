@@ -11,6 +11,7 @@ import {
   IXHRStationStatus,
 } from './types';
 import { ApiEndpointType, DataTransformType } from './types';
+import {Request} from 'express'
 
 import config from '../config';
 import dataTransformers from './helpers/data-transformers';
@@ -20,8 +21,15 @@ const cache = require('memory-cache');
 
 axios.interceptors.response.use(responseHelpers.handleResponseData);
 
-const Api = (): IApiMethods => {
+const Api = (request: Request): IApiMethods => {
   const { bicingApiBaseUrl, endpoints, cacheConfig } = config;
+
+  const logRequest = (
+    method: ApiEndpointType,
+    missHit: 'HIT' | 'MISS',
+  ) => {
+    console.log(`[${(new Date()).toUTCString()}] 🚲 Bicing Api - ${method} *${missHit}* - ${request.ip}`);
+  };
 
   const getApiUrl = (endpoint: string): string =>
     `${bicingApiBaseUrl}${endpoint}`;
@@ -41,7 +49,13 @@ const Api = (): IApiMethods => {
         .catch(responseHelpers.handleErrorResponse);
 
       cache.put(key, result, ttl);
+
+      logRequest(type, 'MISS');
     }
+    else {
+      logRequest(type, 'HIT');
+    }
+
 
     return result;
   };

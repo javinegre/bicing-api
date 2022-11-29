@@ -3,7 +3,6 @@ import ApiRoutes from './src/api.routes';
 import config from './config';
 
 const express = require('express');
-const path = require('path');
 const cors = require('express-cors');
 
 const app: Express = express();
@@ -13,8 +12,6 @@ app.use(
     allowedOrigins: ['negre.co'],
   }),
 );
-
-app.use(express.static(path.join(__dirname, '/build')));
 
 app.use(`/${config.apiVersion}`, ApiRoutes);
 
