@@ -3,6 +3,7 @@ const express = require('express');
 import { Express, Response } from 'express';
 
 import Api from './api.controller';
+import appVersion from '../app-version';
 
 import { ApiResponseTypeV1_3, StationInfoListItemV1_3, StationStatusListItemV1_3 } from './types';
 
@@ -15,6 +16,7 @@ const sendJson: (
     | { latestVersion: string | null }
 ) => void = (res, data) => {
   res.setHeader('Content-Type', 'application/json');
+  if (appVersion) res.setHeader('X-App-Version', appVersion);
   res.send(JSON.stringify(data, null, 0));
 };
 
