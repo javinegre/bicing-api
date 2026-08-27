@@ -6,15 +6,15 @@ import {
   StationStatusResponse,
   StationInfoListItem,
   StationStatusListItem,
-} from './types';
+} from '../types';
 import {
   OfficialApiResult,
   OfficialApiStationInfoListItem,
   OfficialApiStationStatusListItem,
-} from './dtos';
-import { ApiEndpointType, DataTransformType } from './types';
+} from '../dtos';
+import { ApiEndpointType, DataTransformType } from '../types';
 
-import config from '../config';
+import config from '../../config';
 import dataTransformers from './helpers/data-transformers';
 import responseHelpers from './helpers/response';
 

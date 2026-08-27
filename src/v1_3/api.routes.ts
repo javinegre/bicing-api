@@ -4,7 +4,7 @@ import { Express, Response } from 'express';
 
 import Api from './api.controller';
 
-import { ApiResponseType, StationInfoListItem, StationStatusListItem } from './types';
+import { ApiResponseType, StationInfoListItem, StationStatusListItem } from '../types';
 
 const apiRoutes: Express = express();
 

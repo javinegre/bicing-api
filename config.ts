@@ -1,7 +1,5 @@
 import { ApiConfig } from './src/types';
 
-const apiVersion = 'v1.3';
-
 const bicingApiBaseUrl =
   'https://opendata-ajuntament.barcelona.cat/data/';
 
@@ -23,4 +21,4 @@ const cacheConfig: ApiConfig['cacheConfig'] = {
   },
 };
 
-export default { apiVersion, bicingApiBaseUrl, endpoints, cacheConfig };
+export default { bicingApiBaseUrl, endpoints, cacheConfig };
