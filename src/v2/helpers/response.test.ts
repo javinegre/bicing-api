@@ -61,4 +61,20 @@ describe('handleErrorResponse', () => {
 
     vi.restoreAllMocks();
   });
+
+  it('falls back to an empty resource url when the error has no config', () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    const err = {
+      message: 'Network Error',
+      stack: 'Error: Network Error',
+    } as AxiosError;
+
+    expect(responseHelpers.handleErrorResponse(err)).toEqual({
+      success: false,
+      errorMessage: ' -> Network Error',
+    });
+
+    vi.restoreAllMocks();
+  });
 });
