@@ -40,6 +40,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.0",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.11"
   }
 }
