@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { ResponseHelpersV1_3 } from '../types';
-import { OfficialApiResult } from '../../dtos';
+import { OfficialApiResult } from '../../official-api.types';
 
 const isResponseDataValid = <T>(response: AxiosResponse<OfficialApiResult<T>>): boolean =>
   response.data &&

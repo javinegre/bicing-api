@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { OfficialApiResult } from '../dtos';
+import { OfficialApiResult } from '../official-api.types';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Config                                   */

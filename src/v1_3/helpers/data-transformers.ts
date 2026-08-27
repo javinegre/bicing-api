@@ -1,5 +1,5 @@
 import { DataTransformTypeV1_3, StationInfoListItemV1_3, StationStatusListItemV1_3 } from '../types';
-import { OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from '../../dtos';
+import { OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from '../../official-api.types';
 
 const stationInfoTransform: DataTransformTypeV1_3<
   OfficialApiStationInfoListItem,

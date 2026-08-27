@@ -13,7 +13,7 @@ import {
   OfficialApiResult,
   OfficialApiStationInfoListItem,
   OfficialApiStationStatusListItem,
-} from '../dtos';
+} from '../official-api.types';
 
 import config from '../../config';
 import dataTransformers from './helpers/data-transformers';
