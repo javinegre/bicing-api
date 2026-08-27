@@ -1,9 +1,9 @@
-import { DataTransformType, StationInfoListItem, StationStatusListItem } from '../../types';
+import { DataTransformTypeV1_3, StationInfoListItemV1_3, StationStatusListItemV1_3 } from '../types';
 import { OfficialApiStationInfoListItem, OfficialApiStationStatusListItem } from '../../dtos';
 
-const stationInfoTransform: DataTransformType<
+const stationInfoTransform: DataTransformTypeV1_3<
   OfficialApiStationInfoListItem,
-  StationInfoListItem
+  StationInfoListItemV1_3
 > = (station) => ({
   id: station.station_id,
   name: station.name,
@@ -11,9 +11,9 @@ const stationInfoTransform: DataTransformType<
   lng: station.lon,
 });
 
-const stationStatusTransform: DataTransformType<
+const stationStatusTransform: DataTransformTypeV1_3<
   OfficialApiStationStatusListItem,
-  StationStatusListItem
+  StationStatusListItemV1_3
 > = (station) => ({
   i: station.station_id,
   e: station.num_bikes_available_types.ebike,

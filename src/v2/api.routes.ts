@@ -4,14 +4,14 @@ import { Express, Response } from 'express';
 
 import Api from './api.controller';
 
-import { ApiResponseType, StationInfoListItem, StationStatusListItem } from '../types';
+import { ApiResponseTypeV2, StationInfoListItemV2, StationStatusListItemV2 } from './types';
 
 const apiRoutes: Express = express();
 
 const sendJson: (
   res: Response<any, any>,
   data:
-    | ApiResponseType<StationInfoListItem | StationStatusListItem>
+    | ApiResponseTypeV2<StationInfoListItemV2 | StationStatusListItemV2>
     | { latestVersion: string | null }
 ) => void = (res, data) => {
   res.setHeader('Content-Type', 'application/json');

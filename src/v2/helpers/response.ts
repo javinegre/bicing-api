@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { ResponseHelpers } from '../../types';
+import { ResponseHelpersV2 } from '../types';
 import { OfficialApiResult } from '../../dtos';
 
 const isResponseDataValid = <T>(response: AxiosResponse<OfficialApiResult<T>>): boolean =>
@@ -8,19 +8,19 @@ const isResponseDataValid = <T>(response: AxiosResponse<OfficialApiResult<T>>): 
   response.data.data &&
   Array.isArray(response.data.data.stations);
 
-const handleResponseData: ResponseHelpers['handleResponseData'] = (response) =>
+const handleResponseData: ResponseHelpersV2['handleResponseData'] = (response) =>
   isResponseDataValid(response)
     ? response
     : Promise.reject(new Error(`Malformed Open Data BCN api response from ${response.config.url}`));
 
-const handleSuccessfulResponse: ResponseHelpers['handleSuccessfulResponse'] =
+const handleSuccessfulResponse: ResponseHelpersV2['handleSuccessfulResponse'] =
   (stationTransformer) => (response) => ({
     success: true,
     lastUpdated: response.data.last_updated,
     stations: response.data.data.stations.map(stationTransformer),
   });
 
-const handleErrorResponse: ResponseHelpers['handleErrorResponse'] = (err) => {
+const handleErrorResponse: ResponseHelpersV2['handleErrorResponse'] = (err) => {
   const resourceUrl = err.config && err.config.url ? err.config.url : '';
 
   console.log(

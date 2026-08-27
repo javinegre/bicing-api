@@ -1,18 +1,18 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { OfficialApiResult } from './dtos';
+import { OfficialApiResult } from '../dtos';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Config                                   */
 /* -------------------------------------------------------------------------- */
 
-export type ApiEndpointType = 'info' | 'status';
+export type ApiEndpointTypeV2 = 'info' | 'status';
 
-export interface ApiConfig {
+export interface ApiConfigV2 {
   endpoints: {
-    [key in ApiEndpointType]: string;
+    [key in ApiEndpointTypeV2]: string;
   };
   cacheConfig: {
-    [key in ApiEndpointType]: {
+    [key in ApiEndpointTypeV2]: {
       key: string;
       ttl: number;
     };
@@ -23,54 +23,54 @@ export interface ApiConfig {
 /*                                  API Types                                 */
 /* -------------------------------------------------------------------------- */
 
-export interface StationInfoListItem {
+export interface StationInfoListItemV2 {
   id: number;
   name: string;
   lat: number;
   lng: number;
 }
 
-export enum StationStatusEnum {
+export enum StationStatusEnumV2 {
   inactive,
   active,
 }
 
-export interface StationStatusListItem {
+export interface StationStatusListItemV2 {
   i: number;
   e: number;
   m: number;
   d: number;
-  s: StationStatusEnum.inactive | StationStatusEnum.active;
+  s: StationStatusEnumV2.inactive | StationStatusEnumV2.active;
 }
 
-export interface StationListResponse<T> {
+export interface StationListResponseV2<T> {
   success: true;
   lastUpdated: number;
   stations: Array<T>;
 }
 
-export interface ErrorResponse {
+export interface ErrorResponseV2 {
   success: false;
   errorMessage: string;
 }
 
-export type ApiResponseType<T> = StationListResponse<T> | ErrorResponse | null;
+export type ApiResponseTypeV2<T> = StationListResponseV2<T> | ErrorResponseV2 | null;
 
-export type StationInfoResponse = ApiResponseType<StationInfoListItem>;
-export type StationStatusResponse = ApiResponseType<StationStatusListItem>;
+export type StationInfoResponseV2 = ApiResponseTypeV2<StationInfoListItemV2>;
+export type StationStatusResponseV2 = ApiResponseTypeV2<StationStatusListItemV2>;
 
-export type DataTransformType<OT, TT> = (station: OT) => TT;
+export type DataTransformTypeV2<OT, TT> = (station: OT) => TT;
 
 /* -------------------------------------------------------------------------- */
 /*                                   Helpers                                  */
 /* -------------------------------------------------------------------------- */
 
-export interface ResponseHelpers {
+export interface ResponseHelpersV2 {
   handleResponseData: <T>(
     response: AxiosResponse<OfficialApiResult<T>>
   ) => AxiosResponse<OfficialApiResult<T>> | Promise<never>;
   handleSuccessfulResponse: <OT, TT>(
-    stationTransformer: DataTransformType<OT, TT>
-  ) => (response: AxiosResponse<OfficialApiResult<OT>>) => StationListResponse<TT>;
-  handleErrorResponse: (err: AxiosError) => ErrorResponse;
+    stationTransformer: DataTransformTypeV2<OT, TT>
+  ) => (response: AxiosResponse<OfficialApiResult<OT>>) => StationListResponseV2<TT>;
+  handleErrorResponse: (err: AxiosError) => ErrorResponseV2;
 }
