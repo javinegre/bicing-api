@@ -3,8 +3,10 @@ import { describe, expect, it, vi } from 'vitest';
 import responseHelpers from './response';
 import { OfficialApiResult } from '../../official-api.types';
 
-const buildResponse = (data: unknown, url = 'https://example.test/stations') =>
-  ({ data, config: { url } } as AxiosResponse<OfficialApiResult<unknown>>);
+// Generic so a caller can pin the station element type when the helper under
+// test is itself generic; defaults to `unknown` for the shape-only cases.
+const buildResponse = <T = unknown>(data: unknown, url = 'https://example.test/stations') =>
+  ({ data, config: { url } }) as AxiosResponse<OfficialApiResult<T>>;
 
 describe('handleResponseData', () => {
   it('passes through a well-formed response', () => {
@@ -30,7 +32,7 @@ describe('handleResponseData', () => {
 
 describe('handleSuccessfulResponse', () => {
   it('wraps transformed stations in a success payload', () => {
-    const response = buildResponse({
+    const response = buildResponse<number>({
       last_updated: 123,
       data: { stations: [1, 2, 3] },
     });
