@@ -11,7 +11,7 @@ const app: Express = express();
 
 app.use(
   cors({
-    allowedOrigins: ['negre.co', '127.0.0.1:5173'],
+    allowedOrigins: ['negre.co', '127.0.0.1:5173', 'localhost:5173'],
   }),
 );
 
