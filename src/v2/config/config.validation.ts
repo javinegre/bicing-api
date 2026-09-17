@@ -1,4 +1,4 @@
-import { BookmarksV2, CoordinatesV2, UserConfigV2 } from './types';
+import { BookmarksV2, CoordinatesV2, TripInputV2, TripV2, UserConfigV2 } from './types';
 
 /** Guards the JSON column: anything stored here is read back and trusted. */
 export class ConfigValidationError extends Error {}
@@ -10,12 +10,23 @@ const CONFIG_KEYS = [
   'bikeTypeFilter',
   'bookmarks',
   'savedStationIds',
+  'trips',
 ] as const;
 
 const BOOKMARK_KEYS: (keyof BookmarksV2)[] = ['home', 'work', 'favorite'];
+const TRIP_KEYS: (keyof TripV2)[] = ['id', 'origin', 'destination', 'label'];
+const TRIP_INPUT_KEYS: (keyof TripInputV2)[] = ['origin', 'destination', 'label'];
 
 /** A user with more than this many stars is a bug or an abuse, not a rider. */
 const MAX_SAVED_STATIONS = 500;
+
+/**
+ * Trips carry two coordinates and a label apiece, so the cap is tighter than
+ * stations. Exported so the trips endpoints can enforce it one create at a
+ * time, not just on a bulk overwrite.
+ */
+export const MAX_TRIPS = 100;
+const MAX_TRIP_LABEL_LENGTH = 60;
 
 const fail = (message: string): never => {
   throw new ConfigValidationError(message);
@@ -78,6 +89,69 @@ const parseSavedStationIds = (value: unknown): number[] => {
   return [...new Set(ids)];
 };
 
+const parseRequiredCoordinates = (value: unknown, key: string): CoordinatesV2 => {
+  const coordinates = parseCoordinates(value, key);
+  if (coordinates === null) return fail(`${key} is required`);
+  return coordinates;
+};
+
+const parseTripLabel = (value: unknown, key: string): string => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return fail(`${key} must be a non-empty string`);
+  }
+  if (value.length > MAX_TRIP_LABEL_LENGTH) {
+    return fail(`${key} may be at most ${MAX_TRIP_LABEL_LENGTH} characters`);
+  }
+  return value;
+};
+
+const parseTrip = (value: unknown, index: number): TripV2 => {
+  if (!isRecord(value)) return fail(`trips[${index}] must be an object`);
+
+  const unknownKey = Object.keys(value).find((key) => !TRIP_KEYS.includes(key as keyof TripV2));
+  if (unknownKey) return fail(`Unknown trip key "${unknownKey}"`);
+
+  const { id } = value;
+  if (typeof id !== 'string' || id.trim().length === 0) {
+    return fail(`trips[${index}].id must be a non-empty string`);
+  }
+
+  return {
+    id,
+    origin: parseRequiredCoordinates(value.origin, `trips[${index}].origin`),
+    destination: parseRequiredCoordinates(value.destination, `trips[${index}].destination`),
+    label: parseTripLabel(value.label, `trips[${index}].label`),
+  };
+};
+
+const parseTrips = (value: unknown): TripV2[] => {
+  if (!Array.isArray(value)) return fail('trips must be an array');
+  if (value.length > MAX_TRIPS) return fail(`trips may hold at most ${MAX_TRIPS} entries`);
+
+  return value.map((trip, index) => parseTrip(trip, index));
+};
+
+/**
+ * What a client sends to create or fully replace one trip. Unlike parseTrip
+ * this never accepts an id: the trips endpoints own id assignment (create)
+ * or take it from the URL (replace), so a client-supplied id here would
+ * either be ignored or invite mismatch bugs.
+ */
+export const parseTripInput = (body: unknown): TripInputV2 => {
+  if (!isRecord(body)) return fail('Request body must be a JSON object');
+
+  const unknownKey = Object.keys(body).find(
+    (key) => !TRIP_INPUT_KEYS.includes(key as typeof TRIP_INPUT_KEYS[number])
+  );
+  if (unknownKey) return fail(`Unknown trip key "${unknownKey}"`);
+
+  return {
+    origin: parseRequiredCoordinates(body.origin, 'origin'),
+    destination: parseRequiredCoordinates(body.destination, 'destination'),
+    label: parseTripLabel(body.label, 'label'),
+  };
+};
+
 /**
  * Validates an incoming patch. Unknown top-level keys are rejected rather than
  * dropped: silently discarding them would let a newer client believe a setting
@@ -113,6 +187,7 @@ export const parseConfigPatch = (body: unknown): Partial<UserConfigV2> => {
 
   if ('bookmarks' in body) patch.bookmarks = parseBookmarks(body.bookmarks);
   if ('savedStationIds' in body) patch.savedStationIds = parseSavedStationIds(body.savedStationIds);
+  if ('trips' in body) patch.trips = parseTrips(body.trips);
 
   if (Object.keys(patch).length === 0) fail('Request body contained no config keys');
 

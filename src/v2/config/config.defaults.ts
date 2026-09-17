@@ -11,6 +11,7 @@ const defaultUserConfig = (): UserConfigV2 => ({
   bikeTypeFilter: null,
   bookmarks: { home: null, work: null, favorite: null },
   savedStationIds: [],
+  trips: [],
 });
 
 export default defaultUserConfig;

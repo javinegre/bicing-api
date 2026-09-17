@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import Database from 'better-sqlite3';
 
 import defaultUserConfig from './config.defaults';
-import { UserConfigV2 } from './types';
+import { ConfigValidationError, MAX_TRIPS } from './config.validation';
+import { TripInputV2, TripV2, UserConfigV2 } from './types';
 
 /**
  * Same placement and env-override pattern as negre.co-server's auth/auth.ts:
@@ -98,6 +100,54 @@ export const upsertUserConfig = (userId: string, patch: Partial<UserConfigV2>): 
     .run(userId, JSON.stringify(next), updatedAt);
 
   return { config: next, updatedAt };
+};
+
+export const listUserTrips = (userId: string): TripV2[] => getUserConfig(userId).config.trips;
+
+/**
+ * Read-modify-write over the same JSON document the bulk config patch uses.
+ * There's no per-row locking here — same as every other write in this
+ * module — which is fine at this app's scale: a rider isn't editing their
+ * trip list from two devices in the same second.
+ */
+export const addUserTrip = (
+  userId: string,
+  input: TripInputV2
+): { trip: TripV2; updatedAt: number } => {
+  const current = getUserConfig(userId).config;
+  if (current.trips.length >= MAX_TRIPS) {
+    throw new ConfigValidationError(`trips may hold at most ${MAX_TRIPS} entries`);
+  }
+
+  const trip: TripV2 = { id: randomUUID(), ...input };
+  const { updatedAt } = upsertUserConfig(userId, { trips: [...current.trips, trip] });
+  return { trip, updatedAt };
+};
+
+export const updateUserTrip = (
+  userId: string,
+  tripId: string,
+  input: TripInputV2
+): { trip: TripV2; updatedAt: number } | null => {
+  const current = getUserConfig(userId).config;
+  const index = current.trips.findIndex((trip) => trip.id === tripId);
+  if (index === -1) return null;
+
+  const trip: TripV2 = { id: tripId, ...input };
+  const trips = [...current.trips];
+  trips[index] = trip;
+
+  const { updatedAt } = upsertUserConfig(userId, { trips });
+  return { trip, updatedAt };
+};
+
+export const deleteUserTrip = (userId: string, tripId: string): { updatedAt: number } | null => {
+  const current = getUserConfig(userId).config;
+  if (!current.trips.some((trip) => trip.id === tripId)) return null;
+
+  const trips = current.trips.filter((trip) => trip.id !== tripId);
+  const { updatedAt } = upsertUserConfig(userId, { trips });
+  return { updatedAt };
 };
 
 /** Test seam: lets a suite point at a temp file and start clean. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigValidationError, parseConfigPatch } from './config.validation';
+import { ConfigValidationError, parseConfigPatch, parseTripInput } from './config.validation';
 
 describe('parseConfigPatch', () => {
   it('accepts a partial patch and returns only the keys sent', () => {
@@ -14,6 +14,14 @@ describe('parseConfigPatch', () => {
       bikeTypeFilter: 'electrical',
       bookmarks: { home: { lat: 41.4, lng: 2.15 }, work: null, favorite: null },
       savedStationIds: [1, 2, 3],
+      trips: [
+        {
+          id: 'trip-1',
+          origin: { lat: 41.38, lng: 2.17 },
+          destination: { lat: 41.4, lng: 2.15 },
+          label: 'Home to work',
+        },
+      ],
     };
     expect(parseConfigPatch(full)).toEqual(full);
   });
@@ -61,9 +69,103 @@ describe('parseConfigPatch', () => {
     ).toThrow(/at most/);
   });
 
+  it('accepts a trip with an id, origin, destination and label', () => {
+    const trips = [
+      {
+        id: 'trip-1',
+        origin: { lat: 41.38, lng: 2.17 },
+        destination: { lat: 41.4, lng: 2.15 },
+        label: 'Commute',
+      },
+    ];
+    expect(parseConfigPatch({ trips })).toEqual({ trips });
+  });
+
+  it('rejects a trip missing an id, origin or destination', () => {
+    const base = { origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    expect(() => parseConfigPatch({ trips: [{ ...base, label: 'Commute' }] })).toThrow(/id/);
+    expect(() =>
+      parseConfigPatch({
+        trips: [{ id: 't1', destination: base.destination, label: 'Commute' }],
+      })
+    ).toThrow(/origin/);
+    expect(() =>
+      parseConfigPatch({ trips: [{ id: 't1', origin: base.origin, label: 'Commute' }] })
+    ).toThrow(/destination/);
+  });
+
+  it('rejects a trip with an empty or missing label', () => {
+    const base = { id: 't1', origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    expect(() => parseConfigPatch({ trips: [{ ...base, label: '' }] })).toThrow(/label/);
+    expect(() => parseConfigPatch({ trips: [{ ...base, label: '   ' }] })).toThrow(/label/);
+    expect(() => parseConfigPatch({ trips: [base] })).toThrow(/label/);
+  });
+
+  it('rejects a trip label that is too long', () => {
+    const base = { id: 't1', origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    expect(() =>
+      parseConfigPatch({ trips: [{ ...base, label: 'x'.repeat(61) }] })
+    ).toThrow(/at most/);
+  });
+
+  it('rejects an unknown trip key', () => {
+    const base = { id: 't1', origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    expect(() =>
+      parseConfigPatch({ trips: [{ ...base, label: 'Commute', notes: 'scenic' }] })
+    ).toThrow(/Unknown trip key/);
+  });
+
+  it('rejects too many trips', () => {
+    const trip = {
+      id: 't1',
+      origin: { lat: 41.38, lng: 2.17 },
+      destination: { lat: 41.4, lng: 2.15 },
+      label: 'Commute',
+    };
+    expect(() =>
+      parseConfigPatch({ trips: Array.from({ length: 101 }, () => trip) })
+    ).toThrow(/at most/);
+  });
+
   it('rejects a body with no recognised keys at all', () => {
     expect(() => parseConfigPatch({})).toThrow(/no config keys/);
     expect(() => parseConfigPatch(null)).toThrow(/JSON object/);
     expect(() => parseConfigPatch([1, 2])).toThrow(/JSON object/);
+  });
+});
+
+describe('parseTripInput', () => {
+  const valid = {
+    origin: { lat: 41.38, lng: 2.17 },
+    destination: { lat: 41.4, lng: 2.15 },
+    label: 'Commute',
+  };
+
+  it('accepts an origin, destination and label, with no id', () => {
+    expect(parseTripInput(valid)).toEqual(valid);
+  });
+
+  it('rejects a body carrying an id — the endpoint owns id assignment', () => {
+    expect(() => parseTripInput({ ...valid, id: 'client-supplied' })).toThrow(
+      /Unknown trip key/
+    );
+  });
+
+  it('rejects a missing origin or destination', () => {
+    const { origin: _origin, ...withoutOrigin } = valid;
+    expect(() => parseTripInput(withoutOrigin)).toThrow(/origin/);
+    const { destination: _destination, ...withoutDestination } = valid;
+    expect(() => parseTripInput(withoutDestination)).toThrow(/destination/);
+  });
+
+  it('rejects an empty or missing label', () => {
+    expect(() => parseTripInput({ ...valid, label: '' })).toThrow(/label/);
+    const { label: _label, ...withoutLabel } = valid;
+    expect(() => parseTripInput(withoutLabel)).toThrow(/label/);
+  });
+
+  it('rejects a non-object body', () => {
+    expect(() => parseTripInput(null)).toThrow(/JSON object/);
+    expect(() => parseTripInput([1, 2])).toThrow(/JSON object/);
   });
 });

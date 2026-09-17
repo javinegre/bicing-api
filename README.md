@@ -30,6 +30,25 @@ mechanical, `d` docks, `s` status) to keep ~500 rows small over the wire.
 | --- | --- |
 | `GET /` | The signed-in user's config, or defaults if they have never saved |
 | `PUT /` | Upsert. Merges at the top level; returns the merged document |
+| `GET /trips` | The signed-in user's trips |
+| `POST /trips` | Create a trip from `{ origin, destination, label }`; the server assigns `id` |
+| `PUT /trips/:tripId` | Replace a trip's `{ origin, destination, label }`; 404 if `tripId` isn't theirs |
+| `DELETE /trips/:tripId` | Remove a trip; 404 if `tripId` isn't theirs |
+
+The `/trips` routes exist alongside `PUT /`'s bulk `trips` array so a client
+can add, rename or remove a single trip without re-sending the whole list —
+useful once a rider has more than a couple saved. Requests and responses look
+like:
+
+```jsonc
+// POST /trips  { "origin": {...}, "destination": {...}, "label": "Home to work" }
+// -> 201
+{ "success": true, "trip": { "id": "…", "origin": {...}, "destination": {...}, "label": "Home to work" }, "updatedAt": 1700000000000 }
+
+// DELETE /trips/:tripId
+// -> 200 { "success": true, "updatedAt": 1700000000000 }
+// -> 404 { "success": false, "errorMessage": "Trip not found" } if tripId doesn't belong to this user
+```
 
 Mounted separately from `index.ts` because it is the only part of this service
 that needs a session. The host owns the gate:
@@ -48,7 +67,11 @@ without that gate it returns 401 rather than falling open.
 `PUT` **rejects unknown keys** instead of dropping them: silently discarding a
 key would let a newer client believe a setting was saved that an older server
 never understood. It validates coordinate ranges, the zoom range, the enum
-values, and caps `savedStationIds` at 500 entries.
+values, caps `savedStationIds` at 500 entries, and caps `trips` at 100 (the
+same cap `POST /trips` enforces one create at a time). A trip's `label` must
+be non-empty and at most 60 characters. `POST`/`PUT` on `/trips` reject a
+client-supplied `id` — the server assigns it on create and takes it from the
+URL on replace, so trusting a body-supplied one would invite mismatches.
 
 Its `express.json()` is scoped to this router deliberately. negre.co-server
 mounts better-auth's handler ahead of everything and that handler reads the raw
@@ -64,7 +87,10 @@ hanging with no error at all.
   "resourceShown": "bikes" /* | "docks" */,
   "bikeTypeFilter": null /* | "mechanical" | "electrical" */,
   "bookmarks": { "home": null, "work": null, "favorite": null },
-  "savedStationIds": []
+  "savedStationIds": [],
+  "trips": [
+    { "id": "…", "origin": { "lat": 41.38, "lng": 2.17 }, "destination": { "lat": 41.4, "lng": 2.15 }, "label": "Home to work" }
+  ]
 }
 ```
 
