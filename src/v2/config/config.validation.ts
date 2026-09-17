@@ -89,10 +89,11 @@ const parseSavedStationIds = (value: unknown): number[] => {
   return [...new Set(ids)];
 };
 
-const parseRequiredCoordinates = (value: unknown, key: string): CoordinatesV2 => {
-  const coordinates = parseCoordinates(value, key);
-  if (coordinates === null) return fail(`${key} is required`);
-  return coordinates;
+const parseStationId = (value: unknown, key: string): number => {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
+    return fail(`${key} must be a non-negative integer station id`);
+  }
+  return value;
 };
 
 const parseTripLabel = (value: unknown, key: string): string => {
@@ -118,8 +119,8 @@ const parseTrip = (value: unknown, index: number): TripV2 => {
 
   return {
     id,
-    origin: parseRequiredCoordinates(value.origin, `trips[${index}].origin`),
-    destination: parseRequiredCoordinates(value.destination, `trips[${index}].destination`),
+    origin: parseStationId(value.origin, `trips[${index}].origin`),
+    destination: parseStationId(value.destination, `trips[${index}].destination`),
     label: parseTripLabel(value.label, `trips[${index}].label`),
   };
 };
@@ -146,8 +147,8 @@ export const parseTripInput = (body: unknown): TripInputV2 => {
   if (unknownKey) return fail(`Unknown trip key "${unknownKey}"`);
 
   return {
-    origin: parseRequiredCoordinates(body.origin, 'origin'),
-    destination: parseRequiredCoordinates(body.destination, 'destination'),
+    origin: parseStationId(body.origin, 'origin'),
+    destination: parseStationId(body.destination, 'destination'),
     label: parseTripLabel(body.label, 'label'),
   };
 };

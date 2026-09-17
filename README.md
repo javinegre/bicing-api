@@ -35,15 +35,19 @@ mechanical, `d` docks, `s` status) to keep ~500 rows small over the wire.
 | `PUT /trips/:tripId` | Replace a trip's `{ origin, destination, label }`; 404 if `tripId` isn't theirs |
 | `DELETE /trips/:tripId` | Remove a trip; 404 if `tripId` isn't theirs |
 
+`origin` and `destination` are station ids (the same ids used by
+`savedStationIds` and the station-data endpoints above), not coordinates —
+a trip is between two stations, not two points on the map.
+
 The `/trips` routes exist alongside `PUT /`'s bulk `trips` array so a client
 can add, rename or remove a single trip without re-sending the whole list —
 useful once a rider has more than a couple saved. Requests and responses look
 like:
 
 ```jsonc
-// POST /trips  { "origin": {...}, "destination": {...}, "label": "Home to work" }
+// POST /trips  { "origin": 123, "destination": 456, "label": "Home to work" }
 // -> 201
-{ "success": true, "trip": { "id": "…", "origin": {...}, "destination": {...}, "label": "Home to work" }, "updatedAt": 1700000000000 }
+{ "success": true, "trip": { "id": "…", "origin": 123, "destination": 456, "label": "Home to work" }, "updatedAt": 1700000000000 }
 
 // DELETE /trips/:tripId
 // -> 200 { "success": true, "updatedAt": 1700000000000 }
@@ -68,8 +72,9 @@ without that gate it returns 401 rather than falling open.
 key would let a newer client believe a setting was saved that an older server
 never understood. It validates coordinate ranges, the zoom range, the enum
 values, caps `savedStationIds` at 500 entries, and caps `trips` at 100 (the
-same cap `POST /trips` enforces one create at a time). A trip's `label` must
-be non-empty and at most 60 characters. `POST`/`PUT` on `/trips` reject a
+same cap `POST /trips` enforces one create at a time). A trip's `origin` and
+`destination` must each be a non-negative integer station id, and its `label`
+must be non-empty and at most 60 characters. `POST`/`PUT` on `/trips` reject a
 client-supplied `id` — the server assigns it on create and takes it from the
 URL on replace, so trusting a body-supplied one would invite mismatches.
 
@@ -89,7 +94,7 @@ hanging with no error at all.
   "bookmarks": { "home": null, "work": null, "favorite": null },
   "savedStationIds": [],
   "trips": [
-    { "id": "…", "origin": { "lat": 41.38, "lng": 2.17 }, "destination": { "lat": 41.4, "lng": 2.15 }, "label": "Home to work" }
+    { "id": "…", "origin": 123, "destination": 456, "label": "Home to work" }
   ]
 }
 ```

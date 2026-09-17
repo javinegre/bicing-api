@@ -64,8 +64,8 @@ describe('user config store', () => {
   it('merges a trips patch instead of replacing the document', () => {
     const trip = {
       id: 'trip-1',
-      origin: { lat: 41.38, lng: 2.17 },
-      destination: { lat: 41.4, lng: 2.15 },
+      origin: 12,
+      destination: 34,
       label: 'Commute',
     };
     upsertUserConfig('u3', { mapZoom: 15, trips: [trip] });
@@ -95,8 +95,8 @@ describe('user config store', () => {
 
 describe('trip CRUD', () => {
   const input = {
-    origin: { lat: 41.38, lng: 2.17 },
-    destination: { lat: 41.4, lng: 2.15 },
+    origin: 12,
+    destination: 34,
     label: 'Commute',
   };
 

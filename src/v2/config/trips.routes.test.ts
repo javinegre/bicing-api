@@ -46,8 +46,8 @@ afterAll(async () => {
 });
 
 const trip = {
-  origin: { lat: 41.38, lng: 2.17 },
-  destination: { lat: 41.4, lng: 2.15 },
+  origin: 12,
+  destination: 34,
   label: 'Commute',
 };
 

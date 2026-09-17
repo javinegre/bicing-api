@@ -19,8 +19,8 @@ export interface BookmarksV2 {
 
 export interface TripV2 {
   id: string;
-  origin: CoordinatesV2;
-  destination: CoordinatesV2;
+  origin: number;
+  destination: number;
   label: string;
 }
 

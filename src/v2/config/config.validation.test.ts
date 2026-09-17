@@ -17,8 +17,8 @@ describe('parseConfigPatch', () => {
       trips: [
         {
           id: 'trip-1',
-          origin: { lat: 41.38, lng: 2.17 },
-          destination: { lat: 41.4, lng: 2.15 },
+          origin: 12,
+          destination: 34,
           label: 'Home to work',
         },
       ],
@@ -70,58 +70,54 @@ describe('parseConfigPatch', () => {
   });
 
   it('accepts a trip with an id, origin, destination and label', () => {
-    const trips = [
-      {
-        id: 'trip-1',
-        origin: { lat: 41.38, lng: 2.17 },
-        destination: { lat: 41.4, lng: 2.15 },
-        label: 'Commute',
-      },
-    ];
+    const trips = [{ id: 'trip-1', origin: 12, destination: 34, label: 'Commute' }];
     expect(parseConfigPatch({ trips })).toEqual({ trips });
   });
 
   it('rejects a trip missing an id, origin or destination', () => {
-    const base = { origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
-    expect(() => parseConfigPatch({ trips: [{ ...base, label: 'Commute' }] })).toThrow(/id/);
     expect(() =>
-      parseConfigPatch({
-        trips: [{ id: 't1', destination: base.destination, label: 'Commute' }],
-      })
+      parseConfigPatch({ trips: [{ origin: 12, destination: 34, label: 'Commute' }] })
+    ).toThrow(/id/);
+    expect(() =>
+      parseConfigPatch({ trips: [{ id: 't1', destination: 34, label: 'Commute' }] })
     ).toThrow(/origin/);
     expect(() =>
-      parseConfigPatch({ trips: [{ id: 't1', origin: base.origin, label: 'Commute' }] })
+      parseConfigPatch({ trips: [{ id: 't1', origin: 12, label: 'Commute' }] })
+    ).toThrow(/destination/);
+  });
+
+  it('rejects a trip with a non-integer or negative station id', () => {
+    expect(() =>
+      parseConfigPatch({ trips: [{ id: 't1', origin: 12.5, destination: 34, label: 'Commute' }] })
+    ).toThrow(/origin/);
+    expect(() =>
+      parseConfigPatch({ trips: [{ id: 't1', origin: 12, destination: -1, label: 'Commute' }] })
     ).toThrow(/destination/);
   });
 
   it('rejects a trip with an empty or missing label', () => {
-    const base = { id: 't1', origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    const base = { id: 't1', origin: 12, destination: 34 };
     expect(() => parseConfigPatch({ trips: [{ ...base, label: '' }] })).toThrow(/label/);
     expect(() => parseConfigPatch({ trips: [{ ...base, label: '   ' }] })).toThrow(/label/);
     expect(() => parseConfigPatch({ trips: [base] })).toThrow(/label/);
   });
 
   it('rejects a trip label that is too long', () => {
-    const base = { id: 't1', origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    const base = { id: 't1', origin: 12, destination: 34 };
     expect(() =>
       parseConfigPatch({ trips: [{ ...base, label: 'x'.repeat(61) }] })
     ).toThrow(/at most/);
   });
 
   it('rejects an unknown trip key', () => {
-    const base = { id: 't1', origin: { lat: 41.38, lng: 2.17 }, destination: { lat: 41.4, lng: 2.15 } };
+    const base = { id: 't1', origin: 12, destination: 34 };
     expect(() =>
       parseConfigPatch({ trips: [{ ...base, label: 'Commute', notes: 'scenic' }] })
     ).toThrow(/Unknown trip key/);
   });
 
   it('rejects too many trips', () => {
-    const trip = {
-      id: 't1',
-      origin: { lat: 41.38, lng: 2.17 },
-      destination: { lat: 41.4, lng: 2.15 },
-      label: 'Commute',
-    };
+    const trip = { id: 't1', origin: 12, destination: 34, label: 'Commute' };
     expect(() =>
       parseConfigPatch({ trips: Array.from({ length: 101 }, () => trip) })
     ).toThrow(/at most/);
@@ -135,11 +131,7 @@ describe('parseConfigPatch', () => {
 });
 
 describe('parseTripInput', () => {
-  const valid = {
-    origin: { lat: 41.38, lng: 2.17 },
-    destination: { lat: 41.4, lng: 2.15 },
-    label: 'Commute',
-  };
+  const valid = { origin: 12, destination: 34, label: 'Commute' };
 
   it('accepts an origin, destination and label, with no id', () => {
     expect(parseTripInput(valid)).toEqual(valid);
@@ -156,6 +148,11 @@ describe('parseTripInput', () => {
     expect(() => parseTripInput(withoutOrigin)).toThrow(/origin/);
     const { destination: _destination, ...withoutDestination } = valid;
     expect(() => parseTripInput(withoutDestination)).toThrow(/destination/);
+  });
+
+  it('rejects a non-integer or negative station id', () => {
+    expect(() => parseTripInput({ ...valid, origin: 12.5 })).toThrow(/origin/);
+    expect(() => parseTripInput({ ...valid, destination: -1 })).toThrow(/destination/);
   });
 
   it('rejects an empty or missing label', () => {
